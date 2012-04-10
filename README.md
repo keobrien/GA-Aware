@@ -6,7 +6,9 @@ Installation Instructions
 
 1. Add jQuery to all pages in the <head> of your document.
 
-    `<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>`
+```javascript
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+```
 
 2. Download this project and upload jquery.gaaware.min.js to your website.
 3. Include GA Aware and the init script on all pages of your site.
@@ -56,9 +58,10 @@ Examples
 Default Implementation
 ----------------------
 
-    var gaAware = jQuery(document).gaaware({
-    	'UA': 'UA-XXXXX-X'
-    });
+```javascript
+var gaAware = jQuery(document).gaaware({
+	'UA': 'UA-XXXXX-X'
+});
 
 - REQUIRES jQuery 1.4.2 or newer
 - REQUIRES init code in the <head> of the document
@@ -73,20 +76,24 @@ The code below will setup cross domain tracking for domain.com, a.domain.com, b.
 - a and b will be recognized as sub-domains of domain.com.
 - c.domain2.com will not be tracked as a child of domain2.com
 
-    var gaAware = jQuery(document).gaaware({
-    	'UA': 'UA-XXXXX-X',
-    	'domains': [{entity: 'domain.com', subs: ['a', 'b']}, 'domain2.com', 'c.domain2.com']
-    });
+```javascript
+var gaAware = jQuery(document).gaaware({
+	'UA': 'UA-XXXXX-X',
+	'domains': [{entity: 'domain.com', subs: ['a', 'b']}, 'domain2.com', 'c.domain2.com']
+});
+```
 
 Enabling Social Events
 ----------------------
 
 http://code.google.com/apis/analytics/docs/tracking/gaTrackingSocial.html
 
-    var gaAware = jQuery(document).gaaware({
-    	'UA': ['UA-XXXXX-X','UA-XXXXX-X'],
-    	auto_social: true
-    });
+```javascript
+var gaAware = jQuery(document).gaaware({
+	'UA': ['UA-XXXXX-X','UA-XXXXX-X'],
+	auto_social: true
+});
+```
 
 How To Test
 ===========
@@ -262,12 +269,16 @@ These methods will push data to all active tracking codes
 Virtual page views
 ------------------
 
-    gaAware.track_virtual('asd');
+```javascript
+gaAware.track_virtual('asd');
+```
 
 Event tracking
 --------------
 
-    gaAware.track_event('category', 'action', 'label', 1);
+```javascript
+gaAware.track_event('category', 'action', 'label', 1);
+```
 
 ### Params ###
 
@@ -279,7 +290,9 @@ Event tracking
 Track custom variable
 ---------------------
 
-    gaAware.track_custom(1, 'Example Var', 'Track', 1);
+```javascript
+gaAware.track_custom(1, 'Example Var', 'Track', 1);
+```
 
 http://code.google.com/apis/analytics/docs/tracking/gaTrackingCustomVariables.html
 
@@ -296,7 +309,9 @@ NOTE: Call the _setCustomVar() function when it can be set prior to a pageview o
 Social Media Tracking
 ---------------------
 
-    gaAware.track_social('facebook', 'like');
+```javascript
+gaAware.track_social('facebook', 'like');
+```
 
 http://code.google.com/apis/analytics/docs/tracking/gaTrackingSocial.html
 
@@ -312,16 +327,18 @@ NOTE: By default social media tracking is disabled because it calls in 3rd party
 E-commerce transaction
 ----------------------
 
-    gaAware.track_transaction(
-    	[
-    		// Item 1
-    		['001', '90', 'Product 1', 'Category 1', '32.95', '1'],
-    		// Item 2
-    		['001', '92', 'Product 2', 'Category 1', '17.04', '1']
-    	],
-    	// Transaction
-    	['001', 'Example Store', '49.99', '2.30', '5.00', 'Minneapolis', 'Minnesota', 'USA']
-    );
+```javascript
+gaAware.track_transaction(
+	[
+		// Item 1
+		['001', '90', 'Product 1', 'Category 1', '32.95', '1'],
+		// Item 2
+		['001', '92', 'Product 2', 'Category 1', '17.04', '1']
+	],
+	// Transaction
+	['001', 'Example Store', '49.99', '2.30', '5.00', 'Minneapolis', 'Minnesota', 'USA']
+);
+```
 
 ### Params ###
 
