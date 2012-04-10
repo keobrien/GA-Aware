@@ -5,6 +5,7 @@ Author: Kevin O'Brien
 Company: Clockwork Acive Media Systems
 Company Site: clockwork.net
 License: MIT
+Copyright (C) 2012 Clockwork Active Media Systems
 Version: 1.8.6
 **************************************/
 
