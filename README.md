@@ -1,6 +1,28 @@
 GA Aware
 ========
 
+Installation Instructions
+-------------------------
+
+1. Add jQuery to all pages in the <head> of your document.
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+
+2. Download this project and upload jquery.gaaware.min.js to your website.
+
+3. Include GA Aware and the init script on all pages of your site.
+
+    <script type="text/javascript" src="LOCATION_ON_YOUR_SITE/jquery.gaaware.min.js"></script>
+    <script type="text/javascript">
+    var gaAware = jQuery(document).gaaware({
+    	'UA': 'UA-XXXXX-X'
+    });
+    </script>
+
+4. Replace the LOCATION_ON_YOUR_SITE and UA-XXXXX-X with a path to the javascript file on your site and the Google Analytics UA code respectively.
+
+NOTE: You can find the Google Analytics UA code in the default code Google generates for you.  Look for UA-Numbers-Number(s)
+
 Default Installation
 --------------------
 
