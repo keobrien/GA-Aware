@@ -62,6 +62,7 @@ Default Implementation
 var gaAware = jQuery(document).gaaware({
 	'UA': 'UA-XXXXX-X'
 });
+```
 
 - REQUIRES jQuery 1.4.2 or newer
 - REQUIRES init code in the <head> of the document
@@ -270,7 +271,7 @@ Virtual page views
 ------------------
 
 ```javascript
-gaAware.track_virtual('asd');
+gaAware.track_virtual('Virtual Page View Title');
 ```
 
 Event tracking
