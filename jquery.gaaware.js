@@ -20,10 +20,11 @@ Version: 1.8.6
 		// Settings
 		this.s = $.extend({
 			UA:						'UA-XXXXX-X',
+			dev_UA:					null,
 			d:						window.document.domain,
 			domains:				[],
 			include_only:			null,
-			exclude_subdomains:		['preview', 'dev', 'test', 'stage', 'review', 'demo', 'train'],
+			dev_subdomains:		['preview', 'dev', 'test', 'stage', 'review', 'demo', 'train'],
 			asset_extentions:		['pdf', 'txt', 'csv', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'jpg', 'jpeg', 'png', 'gif', 'psd', 'ai', 'eps', 'zip', 'xml', 'json', 'avi', 'mp4', 'mp3', 'mov', 'mpeg', 'wmv', 'rtf', 'swf', 'flv', 'js', 'css', 'eot', 'svg', 'ttf', 'woff', 'otf'],
 			track_alt_protocols:	['mailto', 'spotify', 'ftp', 'file', 'tel'],
 			vpv_prefix:				'/vpv',
@@ -37,6 +38,7 @@ Version: 1.8.6
 			debug_mode:				function(message){ console.info(message); },
 			track:					true,
 			no_track_class:			'ga_notrack',
+			auto_track_page_view:	true,
 			custom_vars:			[],
 			auto_social:			false,
 			social_page_url:		null,
@@ -50,11 +52,7 @@ Version: 1.8.6
 		// Variables
 		window._gaq					= window._gaq || [];
 		this.current_domain_state	= null;
-		this.track_multi			= this.s.UA.constructor === Array ? true : false;
 		this.cross_domain_disabled	= false;
-
-		// Process Variables
-		this.s.UA = this.track_multi ? this.s.UA : [this.s.UA];
 
 		// Init
 		this.setup();
@@ -80,19 +78,31 @@ Version: 1.8.6
 			}
 
 			// Exclude Sub Domains
-			if(this.s.exclude_subdomains) {
+			if(this.s.dev_subdomains) {
 				var domain_parts = this.s.d.split('.');
 				var domain_i;
-				for(var ex_i = 0; ex_i < this.s.exclude_subdomains.length; ex_i++) {
+			
+				loop1:
+				for(var ex_i = 0; ex_i < this.s.dev_subdomains.length; ex_i++) {
 					for(domain_i = 0; domain_i < domain_parts.length; domain_i++) {
-						if(domain_parts[domain_i] == this.s.exclude_subdomains[ex_i]) {
-							if(this.s.debug) this.s.debug_mode('Tracking off: current domain contains an excluded sub domain in this.s.exclude_subdomains: '+this.s.exclude_subdomains[ex_i]);
-							this.s.track = false;
-							return;
+						if(domain_parts[domain_i] == this.s.dev_subdomains[ex_i]) {
+							if(this.s.dev_UA != null) {
+								this.s.UA = this.s.dev_UA;
+								if(this.s.debug) this.s.debug_mode('Setting UA to dev_UA: current domain contains a dev sub domain in this.s.dev_subdomains: '+this.s.dev_subdomains[ex_i]);
+								break loop1;
+							} else {
+								this.s.track = false;
+								if(this.s.debug) this.s.debug_mode('Tracking off: current domain contains a dev sub domain in this.s.dev_subdomains: '+this.s.dev_subdomains[ex_i]);
+								return;
+							}
 						}
 					}
 				}
 			}
+			
+			// Process Variables
+			this.track_multi			= this.s.UA.constructor === Array ? true : false;
+			this.s.UA		 			= this.track_multi ? this.s.UA : [this.s.UA];
 
 			// Activate Each Tracking Code
 			for (var i = 0; i < this.s.UA.length; i++) {
@@ -127,8 +137,14 @@ Version: 1.8.6
 				}
 
 				// Track page view for current page
-				window._gaq.push([pre+'_trackPageview']);
-				if(this.s.debug) this.s.debug_mode(this.s.UA[i]+' active!');
+				if(this.s.auto_track_page_view === true) {
+					window._gaq.push([pre+'_trackPageview']);
+					if(this.s.debug) {
+						this.s.debug_mode(this.s.UA[i]+' active!');
+					} 
+				} else if (this.s.debug)  {
+					this.s.debug_mode(this.s.UA[i]+' auto track disabled!');
+				}	
 			}
 
 			// Default async embed code
