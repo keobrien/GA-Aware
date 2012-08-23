@@ -359,6 +359,8 @@ TODO
 - Cross Domain for Sub directories
 - Cross domain for iframes
 - Chrome cancels alt protocols in network tab, appears to still track though
+- Use classes and data atributes for auto tracking
+- have method for events that auto includes pause
 
   - wtai://wp/mc;18885551234
   - wtai://wp/ap;18885551234

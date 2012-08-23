@@ -91,3 +91,15 @@ V1.8
   - links and forms starting with "//" for the href or action
   - Prefer link title tags to href as a setting
   - Adjusted automated event categories
+
+V1.9
+
+- Better compatibility with other javascript listeners
+- IE8 and lower maintain referral headers
+- Tracking right clicks
+- Bounce defeat
+- Session Keeper
+- Day of Week Tracker
+- Hour of Day Tracker
+- External form pause
+- Minor refactors

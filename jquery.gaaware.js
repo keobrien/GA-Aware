@@ -6,7 +6,7 @@ Company: Clockwork Acive Media Systems
 Company Site: clockwork.net
 License: MIT
 Copyright (C) 2012 Clockwork Active Media Systems
-Version: 1.8.6
+Version: 1.9
 **************************************/
 
 (function ($) {
@@ -42,7 +42,13 @@ Version: 1.8.6
 			social_page_url:		null,
 			enable_facebook:		true,
 			enable_twitter:			true,
-			prefer_title:			true
+			prefer_title:			true,
+			track_right_clicks:		true,
+			//in_page:				true,
+			bouce_defeat:			30000,
+			session_keeper:			1500000,
+			dow_custom_var:			4,
+			hod_custom_var:			5
 		}, s);
 
 		if(!this.s.track) return;
@@ -52,6 +58,7 @@ Version: 1.8.6
 		this.current_domain_state	= null;
 		this.track_multi			= this.s.UA.constructor === Array ? true : false;
 		this.cross_domain_disabled	= false;
+		this.first_load				= false;
 
 		// Process Variables
 		this.s.UA = this.track_multi ? this.s.UA : [this.s.UA];
@@ -68,6 +75,35 @@ Version: 1.8.6
 			var self = this;
 
 			if(!this.s.track) return;
+		
+			// Deturnmin First Load of Session for Bounce Defeat
+			var b		= false;
+			var c		= false;
+			$(document.cookie.split(';')).each(function(i, val){
+				var cookie_name = this.substr(0,this.indexOf("=")).replace(/ /g,'');
+				if(cookie_name == "__utmb"){ b = true; }
+				if(cookie_name == "__utmc"){ c = true; }
+			});
+			if(!b || !c) this.first_load = true;
+			if(this.s.debug) this.s.debug_mode('GA First View In Session: '+this.first_load)
+		
+			// Day of Week and Hour of Day Custom Variables
+			var dow = false;
+			var hod = false;
+			for(var i = 0; i < this.s.custom_vars.length; i++) {
+				if(this.s.dow_custom_var) { if(this.s.custom_vars[i][0] == this.s.dow_custom_var) { dow = true; } }
+				if(this.s.hod_custom_var) { if(this.s.custom_vars[i][0] == this.s.hod_custom_var) { hod = true; } }
+			}
+			if(!dow && this.s.dow_custom_var) {
+				this.s.custom_vars.push(Array(this.s.dow_custom_var, "Day Of Week", (new Date().getDay()).toString()));
+			}else {
+				if(this.s.debug) this.s.debug_mode('Day of Week custom variable not set or in conflict, not tracking in slot '+this.s.dow_custom_var);
+			}
+			if(!hod && this.s.hod_custom_var) {
+				this.s.custom_vars.push(Array(this.s.hod_custom_var, "Hour of Day", (new Date().getHours()).toString()));
+			}else {
+				if(this.s.debug) this.s.debug_mode('Hour of Day custom variable not set or in conflict, not tracking in slot '+this.s.hod_custom_var);
+			}
 
 			// Include Specific Domains Only
 			if(this.s.include_only) {
@@ -93,6 +129,17 @@ Version: 1.8.6
 					}
 				}
 			}
+			
+			/**** Enhanced Link Attribution
+			// _require broken as of June 12, 2012 - Disabling
+			// http://support.google.com/analytics/bin/answer.py?hl=en&answer=2558867&topic=2558810&ctx=topic
+			
+			if(this.s.in_page) {
+				var pluginUrl = (('https:' == document.location.protocol) ? 'https://ssl.' : 'http://www.') + 'google-analytics.com/plugins/ga/inpage_linkid.js';
+				_gaq.push(['_require', 'inpage_linkid', '']);
+				if(this.s.debug) this.s.debug_mode('in_page = true, inpage_linkid.js included.');
+			}
+			***************/
 
 			// Activate Each Tracking Code
 			for (var i = 0; i < this.s.UA.length; i++) {
@@ -112,11 +159,13 @@ Version: 1.8.6
 						window._gaq.push([pre+'_setAllowAnchor', true]); // GET method forms
 						if(this.s.debug) this.s.debug_mode('_setAllowAnchor set to true');
 						if(this.s.debug) this.s.debug_mode('Cross domain active');
-					}else if(this.s.debug) {
+					}else {
 						this.cross_domain_disabled = true;
-						this.s.debug_mode('Error: Cross domain defined but current domain not included, deactivating cross domain');
-						this.s.debug_mode('current domain: '+this.s.d);
-						this.s.debug_mode('cross domain definition: '+this.s.domains);
+						if(this.s.debug) {
+							this.s.debug_mode('Error: Cross domain defined but current domain not included, deactivating cross domain');
+							this.s.debug_mode('current domain: '+this.s.d);
+							this.s.debug_mode('cross domain definition: '+this.s.domains);
+						}
 					}
 				}
 				
@@ -171,11 +220,32 @@ Version: 1.8.6
 				}
 			}
 			
+			if(this.s.bouce_defeat && this.first_load) {
+				setTimeout(function(){ self.track_event('(Ignore Report)', 'Bounce Defeat', self.s.bouce_defeat); }, self.s.bouce_defeat)
+			}
+			if(this.s.session_keeper) {
+				setInterval(function(){ self.track_event('(Ignore Report)', 'Keep Session Open', self.s.session_keeper); }, self.s.session_keeper)
+			}
+			
 			$(document).delegate('a:not(a[href^="javascript:"], a.'+self.s.no_track_class+')', "click", self, self.link_clicks );
+			$(document).delegate('a:not(a[href^="javascript:"], a.'+self.s.no_track_class+')', "mousedown", self, self.eval_mouseup );
 			$(document).delegate('form:not(form.'+self.s.no_track_class+')', "submit", self, self.submit_forms );
 		},
 		
-		link_clicks: function(e) {
+		eval_mouseup: function(e){
+			var self = e.data;
+			if(!self.s.track_right_clicks) return;
+			switch (e.which) {
+		        case 2:
+		            self.link_clicks(e, true);
+		            break;
+		        case 3:
+		            self.link_clicks(e, true);
+		            break;
+		    }
+		},
+		
+		link_clicks: function(e, secondary_click) {
 			
 			var self = e.data;
 			if(!self.s.track) return;
@@ -196,13 +266,18 @@ Version: 1.8.6
 			
 			if((parts[0] == 'http:' || parts[0] == 'https:' || href.substr(0, 2) == '//') && !a_status[4]) {
 				// External link found
-				if(!a_status[0]) {
+				if(!a_status[0] && self.cross_domain_disabled) {
 					// Link domain is NOT part of cross domain definition
 					if(!self.s.track_external_links) return;
-					self.link_virtual(e, target, href, view, false, self.s.external_prefix)
+					if(secondary_click) {
+						self.link_virtual(e, target, href, view, true, self.s.external_prefix);
+					}else {
+						self.link_virtual(e, target, href, view, false, self.s.external_prefix);
+					}
 				}else {
 					// Link IS part of cross domain definition
 					if(a_status[2] == self.current_domain_state[2]) return;
+					if(secondary_click) return;
 					if(target.attr('target') && (target.attr('target') != '_self')) { e.preventDefault(); window.open(window._gat._getTrackerByName()._getLinkerUrl($(target).attr('href')),$(target).attr('target')); }
 						else { e.preventDefault(); window._gaq.push(['_link', target.attr('href')]); }
 				}
@@ -216,7 +291,11 @@ Version: 1.8.6
 				// Set asset links for virtual page views
 				for( var i = 0; i < self.s.asset_extentions.length; i++ ) {
 					if(extension == self.s.asset_extentions[i]) {
-						self.link_virtual(e, target, href, view, false, self.s.asset_prefix);
+						if(secondary_click) {
+							self.link_virtual(e, target, href, view, true, self.s.asset_prefix);
+						}else {
+							self.link_virtual(e, target, href, view, false, self.s.asset_prefix);
+						}
 					}
 				}
 				// Set hash links for virtual page views
@@ -258,13 +337,17 @@ Version: 1.8.6
 							_gaq.push(['_linkByPost', e.target]);
 						}
 					}else {
-						// Todo: Does this need to prevent default?
+						// form is NOT part of cross domain definition
 						if(f_status[4]) {
 							if(self.s.debug) self.s.debug_mode('Form skipped, absolute but links to same domain: '+target);
 							return;
 						}
 						if(self.s.track_as_events) self.track_event(self.s.external_form_prefix, self.s.external_prefix, action.toString());
 							else self.track_virtual(self.s.external_prefix+'/'+self.s.external_form_prefix+'/'+action);
+						
+						if(!(target.attr('target') && (target.attr('target') != '_self'))) {
+							self.pause();
+						}
 					}
 				}
 			}catch(err){
@@ -352,34 +435,31 @@ Version: 1.8.6
 			target = $(target);
 			view = view ? view : destination;
 			var track_view = '';
-			// First: link in new tab; Second: link in same tab
-			if(target.attr('target') && (target.attr('target') != '_self')) {
-				e.preventDefault();
-				if(self.s.track_as_events) {
-					self.track_event('Link', type, view);
-				}else {
-					for( var i = 0; i < self.s.UA.length; i++ ) {
-						var pre = i == 0 ? '' : 't'+(i+1)+'.';
-						window._gaq.push([pre+"_trackPageview", self.s.vpv_prefix+'/'+type+'/'+view]);
-					}
-				}
-				if(!self.s.track_as_events && self.s.debug) self.s.debug_mode('virtual link for new window tracked to: '+self.s.vpv_prefix+'/'+type+'/'+view);
-				window.open(destination, target.attr('target'));
+			if(self.s.track_as_events) {
+				self.track_event('Link', type, view);
 			}else {
-				if(self.s.track_as_events) {
-					self.track_event('Link', type, view);
-				}else {
-					for( var i = 0; i < self.s.UA.length; i++ ) {
-						var pre = i == 0 ? '' : 't'+(i+1)+'.';
-						window._gaq.push([pre+"_trackPageview", self.s.vpv_prefix+'/'+type+'/'+view]);
-					}
-				}
-				if(!self.s.track_as_events && self.s.debug) self.s.debug_mode('virtual link tracked to: '+self.s.vpv_prefix+'/'+type+'/'+view);
-				if(!dont_wait) {
-					e.preventDefault();
-					setTimeout(function(){ document.location = destination; }, 100);
+				for( var i = 0; i < self.s.UA.length; i++ ) {
+					var pre = i == 0 ? '' : 't'+(i+1)+'.';
+					window._gaq.push([pre+"_trackPageview", self.s.vpv_prefix+'/'+type+'/'+view]);
 				}
 			}
+			// First: link in new tab; Second: link in same tab
+			if(target.attr('target') && (target.attr('target') != '_self')) {
+				if(!self.s.track_as_events && self.s.debug) self.s.debug_mode('virtual link for new window tracked to: '+self.s.vpv_prefix+'/'+type+'/'+view);
+			}else {
+				if(!self.s.track_as_events && self.s.debug) self.s.debug_mode('virtual link tracked to: '+self.s.vpv_prefix+'/'+type+'/'+view);
+				if(!dont_wait) {
+					self.pause();
+				}
+			}
+		},
+		
+		pause: function(){
+			_gaq.push(function(){
+				var start = new Date();
+				var end = start.getTime() + (100);
+				while (start.getTime() < end) var start = new Date();
+			});
 		},
 		
 		// For Social tracking twitter events
