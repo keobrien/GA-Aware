@@ -167,6 +167,8 @@ Version: 1.9
 							this.s.debug_mode('cross domain definition: '+this.s.domains);
 						}
 					}
+				}else {
+					this.cross_domain_disabled = true;
 				}
 				
 				// Track Custom vars BEFORE initial pageview
