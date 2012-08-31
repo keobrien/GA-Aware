@@ -6,7 +6,7 @@ Company: Clockwork Acive Media Systems
 Company Site: clockwork.net
 License: MIT
 Copyright (C) 2012 Clockwork Active Media Systems
-Version: 1.9
+Version: 1.9.1
 **************************************/
 
 (function ($) {
