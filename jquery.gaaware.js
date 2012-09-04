@@ -6,7 +6,7 @@ Company: Clockwork Acive Media Systems
 Company Site: clockwork.net
 License: MIT
 Copyright (C) 2012 Clockwork Active Media Systems
-Version: 1.9.1
+Version: 1.9.2
 **************************************/
 
 (function ($) {
@@ -268,7 +268,7 @@ Version: 1.9.1
 			
 			if((parts[0] == 'http:' || parts[0] == 'https:' || href.substr(0, 2) == '//') && !a_status[4]) {
 				// External link found
-				if(!a_status[0] && self.cross_domain_disabled) {
+				if(!a_status[0]) {
 					// Link domain is NOT part of cross domain definition
 					if(!self.s.track_external_links) return;
 					if(secondary_click) {

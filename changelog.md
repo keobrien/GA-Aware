@@ -103,6 +103,5 @@ V1.9
 - Hour of Day Tracker
 - External form pause
 - Minor refactors
-
-V1.9.1
-- Fixing cross domain disabling for external links when only one domain is listed
+- 1.9.1 Fixing cross domain disabling for external links when only one domain is listed
+- 1.9.2 Cross Domain Bug
