@@ -6,7 +6,7 @@ Company: Clockwork Acive Media Systems
 Company Site: clockwork.net
 License: MIT
 Copyright (C) 2012 Clockwork Active Media Systems
-Version: 1.9.2
+Version: 1.9.3
 **************************************/
 
 (function ($) {
@@ -20,6 +20,7 @@ Version: 1.9.2
 		// Settings
 		this.s = $.extend({
 			UA:						'UA-XXXXX-X',
+			alt_UA:					null,
 			d:						window.document.domain,
 			domains:				[],
 			include_only:			null,
@@ -36,6 +37,7 @@ Version: 1.9.2
 			debug:					false,
 			debug_mode:				function(message){ console.info(message); },
 			track:					true,
+			auto_track_page_view    true,
 			no_track_class:			'ga_notrack',
 			custom_vars:			[],
 			auto_social:			false,
@@ -57,11 +59,13 @@ Version: 1.9.2
 		window._gaq					= window._gaq || [];
 		this.current_domain_state	= null;
 		this.track_multi			= this.s.UA.constructor === Array ? true : false;
+		this.alt_track_multi		= this.s.alt_UA.constructor === Array ? true : false;
 		this.cross_domain_disabled	= false;
 		this.first_load				= false;
 
 		// Process Variables
 		this.s.UA = this.track_multi ? this.s.UA : [this.s.UA];
+		this.s.alt_UA = this.alt_track_multi ? this.s.alt_UA : [this.s.alt_UA];
 
 		// Init
 		this.setup();
@@ -119,14 +123,22 @@ Version: 1.9.2
 			if(this.s.exclude_subdomains) {
 				var domain_parts = this.s.d.split('.');
 				var domain_i;
+				this.s.code = '';
 				for(var ex_i = 0; ex_i < this.s.exclude_subdomains.length; ex_i++) {
 					for(domain_i = 0; domain_i < domain_parts.length; domain_i++) {
 						if(domain_parts[domain_i] == this.s.exclude_subdomains[ex_i]) {
-							if(this.s.debug) this.s.debug_mode('Tracking off: current domain contains an excluded sub domain in this.s.exclude_subdomains: '+this.s.exclude_subdomains[ex_i]);
-							this.s.track = false;
-							return;
+							if(this.s.alt_UA.length <= 0) {
+								if(this.s.debug) this.s.debug_mode('Tracking off: current domain contains an excluded sub domain in this.s.exclude_subdomains and no alt_UA specified: '+this.s.exclude_subdomains[ex_i]);
+								this.s.track = false;
+								return;
+							}else {
+								this.s.code = this.s.alt_UA;
+							}
 						}
 					}
+				}
+				if(this.s.code === '') {
+					this.s.code = this.s.UA;
 				}
 			}
 			
@@ -142,11 +154,11 @@ Version: 1.9.2
 			***************/
 
 			// Activate Each Tracking Code
-			for (var i = 0; i < this.s.UA.length; i++) {
+			for (var i = 0; i < this.s.code.length; i++) {
 				var pre = i == 0 ? '' : 't'+(i+1)+'.';
 
 				// Set profile
-				window._gaq.push([pre+'_setAccount', this.s.UA[i]]);
+				window._gaq.push([pre+'_setAccount', this.s.code[i]]);
 
 				// Cross domain tracking
 				if(this.s.domains.length > 0) {
@@ -178,8 +190,12 @@ Version: 1.9.2
 				}
 
 				// Track page view for current page
-				window._gaq.push([pre+'_trackPageview']);
-				if(this.s.debug) this.s.debug_mode(this.s.UA[i]+' active!');
+				if(this.s.auto_track_page_view === true) {
+					window._gaq.push([pre+'_trackPageview']);
+					if(this.s.debug) this.s.debug_mode(this.s.code[i]+' active!');
+				}else {
+					if(this.s.debug) this.s.debug_mode('page view not tracked because of auto_track_page_view but ga aware is available');
+				}
 			}
 
 			// Default async embed code
@@ -440,7 +456,7 @@ Version: 1.9.2
 			if(self.s.track_as_events) {
 				self.track_event('Link', type, view);
 			}else {
-				for( var i = 0; i < self.s.UA.length; i++ ) {
+				for( var i = 0; i < self.s.code.length; i++ ) {
 					var pre = i == 0 ? '' : 't'+(i+1)+'.';
 					window._gaq.push([pre+"_trackPageview", self.s.vpv_prefix+'/'+type+'/'+view]);
 				}
@@ -565,7 +581,7 @@ Version: 1.9.2
 		
 		track_virtual: function(view) {
 			if(!this.s.track || !view) return;
-			for( var i = 0; i < this.s.UA.length; i++ ) {
+			for( var i = 0; i < this.s.code.length; i++ ) {
 				var pre = i == 0 ? '' : 't'+(i+1)+'.';
 				window._gaq.push([pre+"_trackPageview", this.s.vpv_prefix+'/'+view]);
 			}
@@ -580,7 +596,7 @@ Version: 1.9.2
 				value (optional) Int An integer that you can use to provide numerical data about the user event. ex. 1 (added into a total in reporting)
 			*/
 			if(!this.s.track) return;
-			for( var i = 0; i < this.s.UA.length; i++ ) {
+			for( var i = 0; i < this.s.code.length; i++ ) {
 				var pre = i == 0 ? '' : 't'+(i+1)+'.';
 				window._gaq.push([pre+"_trackEvent", category, action, label, value]);
 			}
@@ -598,7 +614,7 @@ Version: 1.9.2
 				opt_scope (optional) Int The scope for the custom variable. As described above, the scope defines the level of user engagement with your site. It is a number whose possible values are 1 (visitor-level), 2 (session-level), or 3 (page-level). When left undefined, the custom variable scope defaults to page-level interaction.
 			*/
 			if(!this.s.track) return;
-			for( var i = 0; i < this.s.UA.length; i++ ) {
+			for( var i = 0; i < this.s.code.length; i++ ) {
 				var pre = i == 0 ? '' : 't'+(i+1)+'.';
 				window._gaq.push([pre+"_setCustomVar", index, name, value, opt_scope]);
 			}
@@ -613,7 +629,7 @@ Version: 1.9.2
 				opt_pagePath (optional) String Representing the page by path (including parameters) from which the action occurred. For example, if you click a Like button on http://code.google.com/apis/analytics/docs/index.html, then opt_pagePath should be set to /apis/analytics/docs/index.html. Almost always, the path of the page is the source of the social action. So if this parameter is undefined or omitted, the tracking code defaults to using location.pathname plus location.search. You generally only need to set this if you are tracking virtual pageviews by modifying the optional page path parameter with the Google Analytics _trackPageview method.
 			*/
 			if(!this.s.track) return;
-			for( var i = 0; i < this.s.UA.length; i++ ) {
+			for( var i = 0; i < this.s.code.length; i++ ) {
 				var pre = i == 0 ? '' : 't'+(i+1)+'.';
 				window._gaq.push([pre+"_trackSocial", network, socialAction, opt_target, opt_pagePath]);
 				if(!this.s.auto_social && self.s.debug) { self.s.debug_mode('NOTE: auto_social is off but track_social method called, make sure the api is included in the html'); }
@@ -622,7 +638,7 @@ Version: 1.9.2
 
 		track_transaction: function(items, transaction) {
 			if(!this.s.track) return;
-			for( var i = 0; i < this.s.UA.length; i++ ) {
+			for( var i = 0; i < this.s.code.length; i++ ) {
 				var pre = i == 0 ? '' : 't'+(i+1)+'.';
 				
 				for( var item_i = 0; item_i < items.length; item_i++ ) {
