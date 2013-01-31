@@ -105,3 +105,5 @@ V1.9
 - Minor refactors
 - 1.9.1 Fixing cross domain disabling for external links when only one domain is listed
 - 1.9.2 Cross Domain Bug
+- 1.9.3 Alt UA code switching
+- 1.9.4 adding alt_ua code support for when using include_domain rather than exclude_subdomain

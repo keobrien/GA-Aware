@@ -6,7 +6,7 @@ Company: Clockwork Acive Media Systems
 Company Site: clockwork.net
 License: MIT
 Copyright (C) 2012 Clockwork Active Media Systems
-Version: 1.9.3
+Version: 1.9.4
 **************************************/
 
 (function ($) {
@@ -113,9 +113,13 @@ Version: 1.9.3
 			if(this.s.include_only) {
 				var inlcude_domain = this.match_domain(this.s.d, this.s.include_only);
 				if(!inlcude_domain[0]) {
-					this.s.track = false;
-					if(this.s.debug) this.s.debug_mode('Current Domain not part of this.s.include_only');
-					return;
+					if(this.s.alt_UA.length <= 0) {
+						if(this.s.debug) this.s.debug_mode('Tracking off: current domain does not contain an include_only domain, no alt_UA specified');
+						this.s.track = false;
+						return;
+					}else {
+						this.s.code = this.s.alt_UA;
+					}
 				}
 			}
 
