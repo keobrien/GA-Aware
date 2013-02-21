@@ -41,6 +41,7 @@ Version: 1.9.2
 			auto_social:			false,
 			social_page_url:		null,
 			enable_facebook:		true,
+			type: 					'normal',
 			enable_twitter:			true,
 			prefer_title:			true,
 			track_right_clicks:		true,
@@ -184,8 +185,13 @@ Version: 1.9.2
 
 			// Default async embed code
 			(function() {
-				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				var ga = document.createElement('script'),
+					src = 	{
+								normal 			: 'google-analytics.com/ga.js',
+								remarketing 	: 'stats.g.doubleclick.net/dc.js'
+							};
+				ga.type = 'text/javascript'; ga.async = true;
+				ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + src[this.s.type];
 				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 			})();
 			
