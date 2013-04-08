@@ -108,3 +108,4 @@ V1.9
 - 1.9.3 Alt UA code switching
 - 1.9.4 adding alt_ua code support for when using include_domain rather than exclude_subdomain
 - 1.9.5 js error
+- 1.9.6 external links, cross domain off, no alt code provided

@@ -6,7 +6,7 @@ Company: Clockwork Acive Media Systems
 Company Site: clockwork.net
 License: MIT
 Copyright (C) 2012 Clockwork Active Media Systems
-Version: 1.9.5
+Version: 1.9.6
 **************************************/
 
 (function ($) {
@@ -20,7 +20,7 @@ Version: 1.9.5
 		// Settings
 		this.s = $.extend({
 			UA:						'UA-XXXXX-X',
-			alt_UA:					null,
+			alt_UA:					[],
 			d:						window.document.domain,
 			domains:				[],
 			include_only:			null,
@@ -275,8 +275,9 @@ Version: 1.9.5
 			var href = target.attr('href');
 			if(!href) return;
 			var parts = href.split('/');
+			var a_status = [];
 			if(parts[0] == 'http:' || parts[0] == 'https:' || href.substr(0, 2) == '//') {
-				var a_status = self.cross_domain_disabled ? [null] : self.match_domain(parts[2]);
+				var a_status = self.match_domain(parts[2]);
 			}
 			
 			var view = href
@@ -348,7 +349,7 @@ Version: 1.9.5
 				if(!action) return;
 				var parts = action.split('/');
 				if(parts[0] == 'http:' || parts[0] == 'https:' || action.substr(0, 2) == '//') {
-					var f_status = self.cross_domain_disabled ? [null] : self.match_domain(parts[2]);
+					var f_status = self.match_domain(parts[2]);
 					if(f_status[0]) {
 						// form IS part of cross domain definition
 						if(f_status[2] == self.current_domain_state[2]) return;
