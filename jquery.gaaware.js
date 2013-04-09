@@ -6,7 +6,7 @@ Company: Clockwork Acive Media Systems
 Company Site: clockwork.net
 License: MIT
 Copyright (C) 2012 Clockwork Active Media Systems
-Version: 1.9.6
+Version: 1.9.7
 **************************************/
 
 (function ($) {
@@ -33,6 +33,7 @@ Version: 1.9.6
 			asset_prefix:			'Asset',
 			hash_prefix:			'Hash',
 			external_form_prefix:	'Form',
+			cross_domain_prefix:	'CrossDomain',
 			track_as_events:		true,
 			debug:					false,
 			debug_mode:				function(message){ console.info(message); },
@@ -46,11 +47,12 @@ Version: 1.9.6
 			enable_twitter:			true,
 			prefer_title:			true,
 			track_right_clicks:		true,
-			//in_page:				true,
 			bouce_defeat:			30000,
 			session_keeper:			1500000,
 			dow_custom_var:			4,
-			hod_custom_var:			5
+			hod_custom_var:			5,
+			//http://support.google.com/analytics/bin/answer.py?hl=en&answer=2558867&topic=2558810&ctx=topic
+			enhanced_link_attribution: false
 		}, s);
 
 		if(!this.s.track) return;
@@ -146,16 +148,12 @@ Version: 1.9.6
 				}
 			}
 			
-			/**** Enhanced Link Attribution
-			// _require broken as of June 12, 2012 - Disabling
-			// http://support.google.com/analytics/bin/answer.py?hl=en&answer=2558867&topic=2558810&ctx=topic
-			
-			if(this.s.in_page) {
-				var pluginUrl = (('https:' == document.location.protocol) ? 'https://ssl.' : 'http://www.') + 'google-analytics.com/plugins/ga/inpage_linkid.js';
-				_gaq.push(['_require', 'inpage_linkid', '']);
-				if(this.s.debug) this.s.debug_mode('in_page = true, inpage_linkid.js included.');
+			//Enhanced Link Attribution
+			if(this.s.enhanced_link_attribution) {
+				var pluginUrl = '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+				_gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+				if(this.s.debug) this.s.debug_mode('enhanced_link_attribution = true, inpage_linkid.js included.');
 			}
-			***************/
 
 			// Activate Each Tracking Code
 			for (var i = 0; i < this.s.code.length; i++) {
@@ -299,7 +297,8 @@ Version: 1.9.6
 					}
 				}else {
 					// Link IS part of cross domain definition
-					if(a_status[2] == self.current_domain_state[2]) return;
+					self.link_virtual(e, target, href, document.location.href + ' -> ' + href, false, self.s.cross_domain_prefix)
+					if((a_status[2] == self.current_domain_state[2]) && (a_status[2] !== 'none')) { return; } // Parent entities match which means cookie transfer isn't needed
 					if(secondary_click) return;
 					if(target.attr('target') && (target.attr('target') != '_self')) { e.preventDefault(); window.open(window._gat._getTrackerByName()._getLinkerUrl($(target).attr('href')),$(target).attr('target')); }
 						else { e.preventDefault(); window._gaq.push(['_link', target.attr('href')]); }
@@ -350,9 +349,12 @@ Version: 1.9.6
 				var parts = action.split('/');
 				if(parts[0] == 'http:' || parts[0] == 'https:' || action.substr(0, 2) == '//') {
 					var f_status = self.match_domain(parts[2]);
-					if(f_status[0]) {
+					if(f_status[0] && !f_status[4]) {
 						// form IS part of cross domain definition
-						if(f_status[2] == self.current_domain_state[2]) return;
+						if(self.s.track_as_events) self.track_event(self.s.external_form_prefix, self.s.cross_domain_prefix, document.location.href + ' -> ' + action.toString());
+							else self.track_virtual(self.s.external_prefix+'/'+self.s.cross_domain_prefix+'/'+document.location.href + '/' + action.toString());
+						self.pause();
+						if((f_status[2] == self.current_domain_state[2]) && (f_status[2] !== 'none')) { return; }
 						var method = target.attr('method').toLowerCase();
 						if( method == 'get' ) {
 							_gaq.push(['_linkByPost', e.target, true]);
@@ -387,7 +389,6 @@ Version: 1.9.6
 					1: url matches a parent entity
 					2: url matches a sub of a parent entity
 					3: url matches a unique domain string
-					4: url is absolute to same domain
 					null: not part of cross domain tracking defined in this.s.domains
 				[1]: domain value to set in GA init code (entity domain)
 				[2]: matched index in this.s.domains[]
