@@ -6,7 +6,7 @@ Company: Clockwork Acive Media Systems
 Company Site: clockwork.net
 License: MIT
 Copyright (C) 2012 Clockwork Active Media Systems
-Version: 1.9.7
+Version: 1.9.8
 **************************************/
 
 (function ($) {
@@ -297,7 +297,7 @@ Version: 1.9.7
 					}
 				}else {
 					// Link IS part of cross domain definition
-					self.link_virtual(e, target, href, document.location.href + ' -> ' + href, false, self.s.cross_domain_prefix)
+					self.link_virtual(e, target, href, document.location.href + ' -> ' + href, false, self.remove_www(document.location.host) + ' -> ' + self.remove_www(href, true), self.s.cross_domain_prefix + 'Link');
 					if((a_status[2] == self.current_domain_state[2]) && (a_status[2] !== 'none')) { return; } // Parent entities match which means cookie transfer isn't needed
 					if(secondary_click) return;
 					if(target.attr('target') && (target.attr('target') != '_self')) { e.preventDefault(); window.open(window._gat._getTrackerByName()._getLinkerUrl($(target).attr('href')),$(target).attr('target')); }
@@ -351,7 +351,7 @@ Version: 1.9.7
 					var f_status = self.match_domain(parts[2]);
 					if(f_status[0] && !f_status[4]) {
 						// form IS part of cross domain definition
-						if(self.s.track_as_events) self.track_event(self.s.external_form_prefix, self.s.cross_domain_prefix, document.location.href + ' -> ' + action.toString());
+						if(self.s.track_as_events) self.track_event(self.s.cross_domain_prefix + self.s.external_form_prefix, self.remove_www(document.location.host) + ' -> ' + self.remove_www(action.toString(), true), document.location.href + ' -> ' + action.toString());
 							else self.track_virtual(self.s.external_prefix+'/'+self.s.cross_domain_prefix+'/'+document.location.href + '/' + action.toString());
 						self.pause();
 						if((f_status[2] == self.current_domain_state[2]) && (f_status[2] !== 'none')) { return; }
@@ -433,8 +433,16 @@ Version: 1.9.7
 
 		},
 		
-		remove_www: function(url) {
-			var url_parts = url.split('.');
+		remove_www: function(url, remove_protical) {
+			var url_parts;
+			if(remove_protical === true) {
+				url_parts = url.split('//');
+				if(url_parts.length > 1) {
+					url_parts.shift();
+					url = url_parts.join('');
+				}
+			}
+			url_parts = url.split('.');
 			if(url_parts[0] == 'www') {
 				url_parts.splice(0,1)
 				url = url_parts.join('.');
@@ -444,7 +452,7 @@ Version: 1.9.7
 			return url;
 		},
 
-		link_virtual: function(e, target, destination, view, dont_wait, type) {
+		link_virtual: function(e, target, destination, view, dont_wait, type, category) {
 			/*
 				e: Click event
 				target: Link Element to listen to
@@ -458,9 +466,10 @@ Version: 1.9.7
 			var self = this;
 			target = $(target);
 			view = view ? view : destination;
+			category = category ? category : 'Link';
 			var track_view = '';
 			if(self.s.track_as_events) {
-				self.track_event('Link', type, view);
+				self.track_event(category, type, view);
 			}else {
 				for( var i = 0; i < self.s.code.length; i++ ) {
 					var pre = i == 0 ? '' : 't'+(i+1)+'.';
