@@ -2,7 +2,7 @@
 Project Name: GA Aware
 URL: https://github.com/keobrien/GA-Aware
 Author: Kevin O'Brien
-Company: Clockwork Acive Media Systems
+Company: Clockwork Active Media Systems
 Company Site: clockwork.net
 License: MIT
 Copyright (C) 2012 Clockwork Active Media Systems
