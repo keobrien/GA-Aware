@@ -6,7 +6,7 @@ Company: Clockwork Active Media Systems
 Company Site: clockwork.net
 License: MIT
 Copyright (C) 2012 Clockwork Active Media Systems
-Version: 1.9.8
+Version: 1.9.9
 **************************************/
 
 (function ($) {
@@ -241,10 +241,10 @@ Version: 1.9.8
 			}
 			
 			if(this.s.bouce_defeat && this.first_load) {
-				setTimeout(function(){ self.track_event('(Ignore Report)', 'Bounce Defeat', self.s.bouce_defeat); }, self.s.bouce_defeat)
+				setTimeout(function(){ self.track_event('(Ignore Report)', 'Bounce Defeat', self.s.bouce_defeat.toString()); }, self.s.bouce_defeat)
 			}
 			if(this.s.session_keeper) {
-				setInterval(function(){ self.track_event('(Ignore Report)', 'Keep Session Open', self.s.session_keeper); }, self.s.session_keeper)
+				setInterval(function(){ self.track_event('(Ignore Report)', 'Keep Session Open', self.s.session_keeper.toString()); }, self.s.session_keeper)
 			}
 			
 			$(document).delegate('a:not(a[href^="javascript:"], a.'+self.s.no_track_class+')', "click", self, self.link_clicks );

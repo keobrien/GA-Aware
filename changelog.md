@@ -111,3 +111,4 @@ V1.9
 - 1.9.6 external links, cross domain off, no alt code provided
 - 1.9.7 Enhanced Link Attribution, Cross domain custom events
 - 1.9.8 Cross domain custom events organization
+- 1.9.9 Bounce defeat and session keeper actions need to be strings
