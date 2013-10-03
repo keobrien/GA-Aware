@@ -112,3 +112,4 @@ V1.9
 - 1.9.7 Enhanced Link Attribution, Cross domain custom events
 - 1.9.8 Cross domain custom events organization
 - 1.9.9 Bounce defeat and session keeper actions need to be strings
+- 1.9.10 Cross domain defined, current site not in cross domain definition, disables linker which breaks links, cross domain links should become external because cross domain is disabled

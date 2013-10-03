@@ -6,7 +6,7 @@ Company: Clockwork Active Media Systems
 Company Site: clockwork.net
 License: MIT
 Copyright (C) 2012 Clockwork Active Media Systems
-Version: 1.9.9
+Version: 1.9.10
 **************************************/
 
 (function ($) {
@@ -287,7 +287,7 @@ Version: 1.9.9
 			
 			if((parts[0] == 'http:' || parts[0] == 'https:' || href.substr(0, 2) == '//') && !a_status[4]) {
 				// External link found
-				if(!a_status[0]) {
+				if(!a_status[0] || self.cross_domain_disabled) {
 					// Link domain is NOT part of cross domain definition
 					if(!self.s.track_external_links) return;
 					if(secondary_click) {
@@ -349,7 +349,7 @@ Version: 1.9.9
 				var parts = action.split('/');
 				if(parts[0] == 'http:' || parts[0] == 'https:' || action.substr(0, 2) == '//') {
 					var f_status = self.match_domain(parts[2]);
-					if(f_status[0] && !f_status[4]) {
+					if(f_status[0] && !f_status[4] && !self.cross_domain_disabled) {
 						// form IS part of cross domain definition
 						if(self.s.track_as_events) self.track_event(self.s.cross_domain_prefix + self.s.external_form_prefix, self.remove_www(document.location.host) + ' -> ' + self.remove_www(action.toString(), true), document.location.href + ' -> ' + action.toString());
 							else self.track_virtual(self.s.external_prefix+'/'+self.s.cross_domain_prefix+'/'+document.location.href + '/' + action.toString());
@@ -364,7 +364,7 @@ Version: 1.9.9
 					}else {
 						// form is NOT part of cross domain definition
 						if(f_status[4]) {
-							if(self.s.debug) self.s.debug_mode('Form skipped, absolute but links to same domain: '+target);
+							if(self.s.debug) self.s.debug_mode('Form skipped, absolute but links to same domain or cross domain is disabled: '+target);
 							return;
 						}
 						if(self.s.track_as_events) self.track_event(self.s.external_form_prefix, self.s.external_prefix, action.toString());
