@@ -52,7 +52,8 @@ Version: 1.9.10
 			dow_custom_var:			4,
 			hod_custom_var:			5,
 			//http://support.google.com/analytics/bin/answer.py?hl=en&answer=2558867&topic=2558810&ctx=topic
-			enhanced_link_attribution: false
+			enhanced_link_attribution: false,
+			demographics_tracking:	false
 		}, s);
 
 		if(!this.s.track) return;
@@ -203,7 +204,12 @@ Version: 1.9.10
 			// Default async embed code
 			(function() {
 				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				if(self.s.demographics_tracking) {
+					ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+				}
+				else {
+					ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				}
 				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 			})();
 			
