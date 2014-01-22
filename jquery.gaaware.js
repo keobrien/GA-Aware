@@ -6,7 +6,7 @@ Company: Clockwork Active Media Systems
 Company Site: clockwork.net
 License: MIT
 Copyright (C) 2012 Clockwork Active Media Systems
-Version: 1.9.11
+Version: 1.9.12
 **************************************/
 
 (function ($) {
@@ -609,19 +609,20 @@ Version: 1.9.11
 			if(this.s.debug) this.s.debug_mode('virtual page view tracked to: '+this.s.vpv_prefix+view);
 		},
 
-		track_event: function(category, action, label, value) {
+		track_event: function(category, action, label, value, noninteraction) {
 			/* 
 				category (required) String The name you supply for the group of objects you want to track. ex. 'Videos'
 				action (required) String A string that is uniquely paired with each category, and commonly used to define the type of user interaction for the web object. ex. 'Play'
 				label (optional) String An optional string to provide additional dimensions to the event data. ex. 'Baby\'s First Birthday'
 				value (optional) Int An integer that you can use to provide numerical data about the user event. ex. 1 (added into a total in reporting)
+			 	noninteraction (optional) Bool A boolean that when set to true, indicates that the event hit will not be used in bounce-rate calculation.
 			*/
 			if(!this.s.track) return;
 			for( var i = 0; i < this.s.code.length; i++ ) {
 				var pre = i == 0 ? '' : 't'+(i+1)+'.';
-				window._gaq.push([pre+"_trackEvent", category, action, label, value]);
+				window._gaq.push([pre+"_trackEvent", category, action, label, value, noninteraction]);
 			}
-			if(this.s.debug) this.s.debug_mode('event tracked as: '+category+' '+action+' '+label+' '+value);
+			if(this.s.debug) this.s.debug_mode('event tracked as: '+category+' '+action+' '+label+' '+value+' '+noninteraction);
 		},
 
 		track_custom: function(index, name, value, opt_scope) {
