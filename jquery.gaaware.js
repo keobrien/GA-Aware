@@ -48,7 +48,7 @@ Version: 1.9.13
 			prefer_title:			true,
 			track_right_clicks:		true,
 			bouce_defeat:			30000,
-			session_keeper:			1500000,
+			session_keeper:			false, //1500000
 			dow_custom_var:			4,
 			hod_custom_var:			5,
 			//http://support.google.com/analytics/bin/answer.py?hl=en&answer=2558867&topic=2558810&ctx=topic
